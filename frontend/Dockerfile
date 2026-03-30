@@ -2,6 +2,12 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
 EXPOSE 5173
 
-CMD ["sh", "-c", "echo 'frontend container pronto para a etapa inicial'; tail -f /dev/null"]
+CMD ["npm", "run", "dev"]
