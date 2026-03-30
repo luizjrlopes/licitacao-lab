@@ -31,3 +31,10 @@ backend/prisma/dev.db-journal
 # Docker volumes / temp
 postgres_data/
 redis_data/
+
+# AI prompt/context docs (local only)
+docs/promptChat.md
+docs/PROMPT_COPILOT.md
+docs/CONTEXTO_COPILOT.md
+docs/PLANO_DE_EXECUCAO_IA.md
+docs/INTENCAO_DO_PROJETO.md
