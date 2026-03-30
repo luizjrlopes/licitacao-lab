@@ -7,6 +7,17 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export type UserRole = "ADMIN" | "SUPPLIER";
+
+export interface AuthenticatedUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type NoticeStatus = "DRAFT" | "OPEN" | "CLOSED";
 
 export interface Notice {
@@ -22,6 +33,11 @@ export interface Lot {
   code: string;
   description: string;
   referenceValue: string;
+  notice: {
+    id: string;
+    title: string;
+    status: NoticeStatus;
+  };
 }
 
 export interface RankingBid {
@@ -40,4 +56,18 @@ export interface LotRankingResponse {
 
 export interface NoticeWithLots extends Notice {
   lots: Lot[];
+}
+
+export interface CreateBidInput {
+  amount: number;
+}
+
+export interface CreatedBid {
+  id: string;
+  lotId: string;
+  supplierId: string;
+  amount: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
