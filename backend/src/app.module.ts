@@ -8,6 +8,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { NoticesModule } from "./notices/notices.module";
 import { LotsModule } from "./lots/lots.module";
+import { BidsModule } from "./bids/bids.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LotsModule } from "./lots/lots.module";
     UsersModule,
     NoticesModule,
     LotsModule,
+    BidsModule,
     HealthModule,
   ],
   providers: [
