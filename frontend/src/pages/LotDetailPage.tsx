@@ -149,7 +149,9 @@ export function LotDetailPage(): JSX.Element {
             />
           </label>
 
-          {errors.amount ? <p className="danger">{errors.amount.message}</p> : null}
+          {errors.amount ? (
+            <p className="danger">{errors.amount.message}</p>
+          ) : null}
 
           <button
             type="submit"

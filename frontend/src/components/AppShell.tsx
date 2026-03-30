@@ -13,6 +13,7 @@ export function AppShell(): JSX.Element {
           {!isAuthenticated ? <Link to="/login">Login</Link> : null}
           <Link to="/notices">Editais</Link>
           <Link to="/lots/1">Lote #1</Link>
+          <Link to="/audit-logs">Auditoria</Link>
           {isAuthenticated ? <button onClick={clearToken}>Sair</button> : null}
         </nav>
       </header>

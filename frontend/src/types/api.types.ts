@@ -71,3 +71,19 @@ export interface CreatedBid {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface AuditLogItem {
+  id: string;
+  actorUserId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  metadataJson: unknown;
+  createdAt: string;
+  actorUser: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
+}
