@@ -43,7 +43,9 @@ export function LotDetailPage(): JSX.Element {
       return false;
     }
 
-    return meQuery.data.role === "SUPPLIER" && lotQuery.data.notice.status === "OPEN";
+    return (
+      meQuery.data.role === "SUPPLIER" && lotQuery.data.notice.status === "OPEN"
+    );
   }, [lotQuery.data, meQuery.data]);
 
   const handleSubmitBid = (event: FormEvent<HTMLFormElement>) => {
@@ -89,7 +91,8 @@ export function LotDetailPage(): JSX.Element {
               {lotQuery.data.referenceValue}
             </p>
             <p>
-              <strong>Edital:</strong> {lotQuery.data.notice.title} ({lotQuery.data.notice.status})
+              <strong>Edital:</strong> {lotQuery.data.notice.title} (
+              {lotQuery.data.notice.status})
             </p>
           </>
         ) : null}
@@ -101,15 +104,23 @@ export function LotDetailPage(): JSX.Element {
         {meQuery.isLoading ? <p>Carregando sessão do usuário...</p> : null}
 
         {meQuery.isError ? (
-          <p className="danger">Não foi possível carregar os dados do usuário autenticado.</p>
+          <p className="danger">
+            Não foi possível carregar os dados do usuário autenticado.
+          </p>
         ) : null}
 
         {meQuery.data && meQuery.data.role !== "SUPPLIER" ? (
-          <p className="muted">Apenas usuários SUPPLIER podem enviar proposta.</p>
+          <p className="muted">
+            Apenas usuários SUPPLIER podem enviar proposta.
+          </p>
         ) : null}
 
-        {meQuery.data && lotQuery.data && lotQuery.data.notice.status !== "OPEN" ? (
-          <p className="muted">Propostas só podem ser enviadas quando o edital estiver OPEN.</p>
+        {meQuery.data &&
+        lotQuery.data &&
+        lotQuery.data.notice.status !== "OPEN" ? (
+          <p className="muted">
+            Propostas só podem ser enviadas quando o edital estiver OPEN.
+          </p>
         ) : null}
 
         <form className="stack" onSubmit={handleSubmitBid}>
@@ -130,12 +141,16 @@ export function LotDetailPage(): JSX.Element {
             type="submit"
             disabled={!canSubmitBid || createBidMutation.isPending}
           >
-            {createBidMutation.isPending ? "Enviando proposta..." : "Enviar proposta"}
+            {createBidMutation.isPending
+              ? "Enviando proposta..."
+              : "Enviar proposta"}
           </button>
         </form>
 
         {createBidMutation.isError ? (
-          <p className="danger">Falha ao enviar proposta. Verifique as regras e tente novamente.</p>
+          <p className="danger">
+            Falha ao enviar proposta. Verifique as regras e tente novamente.
+          </p>
         ) : null}
 
         {createBidMutation.isSuccess ? (
