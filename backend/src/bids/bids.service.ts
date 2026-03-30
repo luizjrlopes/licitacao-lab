@@ -47,7 +47,9 @@ export class BidsService {
     }
 
     if (lot.notice.status !== NoticeStatus.OPEN) {
-      throw new BadRequestException("Só é permitido enviar proposta em edital OPEN");
+      throw new BadRequestException(
+        "Só é permitido enviar proposta em edital OPEN",
+      );
     }
 
     const lockKey = `${lotId}:${actor.sub}`;
