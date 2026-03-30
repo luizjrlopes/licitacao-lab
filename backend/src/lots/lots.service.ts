@@ -5,11 +5,15 @@ import {
 } from "@nestjs/common";
 import { NoticeStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { RedisService } from "../redis/redis.service";
 import { CreateLotDto } from "./dto/create-lot.dto";
 
 @Injectable()
 export class LotsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
+  ) {}
 
   private readonly lotSelect = {
     id: true,
@@ -111,5 +115,78 @@ export class LotsService {
     }
 
     return lot;
+  }
+
+  async getRanking(id: string): Promise<{
+    lotId: string;
+    ranking: Array<{
+      position: number;
+      bidId: string;
+      supplierId: string;
+      supplierName: string;
+      amount: number;
+      submittedAt: string;
+    }>;
+  }> {
+    const cacheKey = `ranking:lot:${id}`;
+    const cached = await this.redisService.getJson<{
+      lotId: string;
+      ranking: Array<{
+        position: number;
+        bidId: string;
+        supplierId: string;
+        supplierName: string;
+        amount: number;
+        submittedAt: string;
+      }>;
+    }>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const lot = await this.prismaService.lot.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!lot) {
+      throw new NotFoundException("Lote não encontrado");
+    }
+
+    const bids = await this.prismaService.bid.findMany({
+      where: {
+        lotId: id,
+        isActive: true,
+      },
+      orderBy: [{ amount: "asc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        supplierId: true,
+        amount: true,
+        createdAt: true,
+        supplier: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const response = {
+      lotId: id,
+      ranking: bids.map((bid, index) => ({
+        position: index + 1,
+        bidId: bid.id,
+        supplierId: bid.supplierId,
+        supplierName: bid.supplier.name,
+        amount: Number(bid.amount),
+        submittedAt: bid.createdAt.toISOString(),
+      })),
+    };
+
+    await this.redisService.setJson(cacheKey, response, 30);
+
+    return response;
   }
 }

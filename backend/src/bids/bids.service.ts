@@ -6,11 +6,15 @@ import {
 import { NoticeStatus, Prisma, UserRole } from "@prisma/client";
 import { JwtUser } from "../auth/types/jwt-user.type";
 import { PrismaService } from "../prisma/prisma.service";
+import { RedisService } from "../redis/redis.service";
 import { CreateBidDto } from "./dto/create-bid.dto";
 
 @Injectable()
 export class BidsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
+  ) {}
 
   async create(
     lotId: string,
@@ -55,7 +59,7 @@ export class BidsService {
     const lockKey = `${lotId}:${actor.sub}`;
 
     try {
-      return await this.prismaService.$transaction(
+      const createdBid = await this.prismaService.$transaction(
         async (tx) => {
           await tx.$executeRaw`
             SELECT pg_advisory_xact_lock(hashtext(${lockKey})::bigint)
@@ -94,6 +98,10 @@ export class BidsService {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
+
+      await this.redisService.del(`ranking:lot:${lotId}`);
+
+      return createdBid;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

@@ -9,6 +9,7 @@ import { RolesGuard } from "./common/guards/roles.guard";
 import { NoticesModule } from "./notices/notices.module";
 import { LotsModule } from "./lots/lots.module";
 import { BidsModule } from "./bids/bids.module";
+import { RedisModule } from "./redis/redis.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BidsModule } from "./bids/bids.module";
     }),
     PrismaModule,
     AuthModule,
+    RedisModule,
     UsersModule,
     NoticesModule,
     LotsModule,

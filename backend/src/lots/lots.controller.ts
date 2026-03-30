@@ -58,4 +58,20 @@ export class LotsController {
   }> {
     return this.lotsService.detail(id);
   }
+
+  @Get("lots/:id/ranking")
+  @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
+  ranking(@Param("id", new ParseUUIDPipe()) id: string): Promise<{
+    lotId: string;
+    ranking: Array<{
+      position: number;
+      bidId: string;
+      supplierId: string;
+      supplierName: string;
+      amount: number;
+      submittedAt: string;
+    }>;
+  }> {
+    return this.lotsService.getRanking(id);
+  }
 }
