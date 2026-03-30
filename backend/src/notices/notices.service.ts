@@ -27,7 +27,10 @@ export class NoticesService {
     updatedAt: true,
   };
 
-  async create(actorUserId: string, createNoticeDto: CreateNoticeDto): Promise<{
+  async create(
+    actorUserId: string,
+    createNoticeDto: CreateNoticeDto,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
@@ -101,7 +104,10 @@ export class NoticesService {
     return notice;
   }
 
-  async publish(actorUserId: string, id: string): Promise<{
+  async publish(
+    actorUserId: string,
+    id: string,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
@@ -152,7 +158,10 @@ export class NoticesService {
     return updated;
   }
 
-  async close(actorUserId: string, id: string): Promise<{
+  async close(
+    actorUserId: string,
+    id: string,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
