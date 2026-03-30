@@ -15,6 +15,7 @@ import { Request } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { JwtUser } from "../auth/types/jwt-user.type";
 import { Roles } from "../common/decorators/roles.decorator";
+import { RolesGuard } from "../common/guards/roles.guard";
 import { CreateNoticeDto } from "./dto/create-notice.dto";
 import { ListNoticesQueryDto } from "./dto/list-notices-query.dto";
 import { NoticesService } from "./notices.service";
@@ -24,7 +25,7 @@ type AuthenticatedRequest = Request & {
 };
 
 @Controller("notices")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 

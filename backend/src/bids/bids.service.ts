@@ -135,4 +135,64 @@ export class BidsService {
       throw error;
     }
   }
+
+  async listMine(actor: JwtUser): Promise<
+    Array<{
+      id: string;
+      lotId: string;
+      supplierId: string;
+      amount: Prisma.Decimal;
+      isActive: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      lot: {
+        id: string;
+        code: string;
+        description: string;
+        notice: {
+          id: string;
+          title: string;
+          status: string;
+        };
+      };
+    }>
+  > {
+    if (actor.role !== UserRole.SUPPLIER) {
+      throw new BadRequestException(
+        "Somente fornecedor pode listar as próprias propostas",
+      );
+    }
+
+    return this.prismaService.bid.findMany({
+      where: {
+        supplierId: actor.sub,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        lotId: true,
+        supplierId: true,
+        amount: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        lot: {
+          select: {
+            id: true,
+            code: true,
+            description: true,
+            notice: {
+              select: {
+                id: true,
+                title: true,
+                status: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

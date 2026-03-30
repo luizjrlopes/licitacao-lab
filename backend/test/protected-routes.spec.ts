@@ -1,7 +1,4 @@
-import {
-  ForbiddenException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { GUARDS_METADATA } from "@nestjs/common/constants";
 import { Reflector } from "@nestjs/core";
 import { UserRole } from "@prisma/client";
@@ -13,17 +10,13 @@ import { UsersController } from "../src/users/users.controller";
 
 describe("Proteção de rotas e autorização por perfil", () => {
   it("deve marcar rotas sensíveis com JwtAuthGuard", () => {
-    const usersGuards: Array<new (...args: never[]) => unknown> = Reflect.getMetadata(
-      GUARDS_METADATA,
-      UsersController.prototype.me,
-    );
+    const usersGuards: Array<new (...args: never[]) => unknown> =
+      Reflect.getMetadata(GUARDS_METADATA, UsersController.prototype.me);
 
     expect(usersGuards).toContain(JwtAuthGuard);
 
-    const bidsGuards: Array<new (...args: never[]) => unknown> = Reflect.getMetadata(
-      GUARDS_METADATA,
-      BidsController,
-    );
+    const bidsGuards: Array<new (...args: never[]) => unknown> =
+      Reflect.getMetadata(GUARDS_METADATA, BidsController);
 
     expect(bidsGuards).toContain(JwtAuthGuard);
   });

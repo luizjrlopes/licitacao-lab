@@ -8,6 +8,22 @@ services:
       - .env
     ports:
       - "3000:3000"
+    command: >
+      sh -c "npm run prisma:generate &&
+      npm run prisma:migrate:deploy &&
+      npm run prisma:seed &&
+      npm run start:dev"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,7 +41,7 @@ services:
       - "5173:5173"
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
 
   postgres:
     image: postgres:16-alpine

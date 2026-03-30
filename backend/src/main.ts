@@ -23,6 +23,20 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const configService = app.get(ConfigService);
+  const frontendOrigin = configService.get<string>(
+    "FRONTEND_ORIGIN",
+    "http://localhost:5173",
+  );
+
+  const corsOrigins = frontendOrigin
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
+  app.enableCors({
+    origin: corsOrigins,
+  });
+
   const port = configService.get<number>("PORT", 3000);
 
   await app.listen(port, "0.0.0.0");

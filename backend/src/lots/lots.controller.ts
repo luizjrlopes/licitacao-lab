@@ -13,6 +13,7 @@ import { Request } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { JwtUser } from "../auth/types/jwt-user.type";
 import { Roles } from "../common/decorators/roles.decorator";
+import { RolesGuard } from "../common/guards/roles.guard";
 import { CreateLotDto } from "./dto/create-lot.dto";
 import { LotsService } from "./lots.service";
 
@@ -21,7 +22,7 @@ type AuthenticatedRequest = Request & {
 };
 
 @Controller()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class LotsController {
   constructor(private readonly lotsService: LotsService) {}
 

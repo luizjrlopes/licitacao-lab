@@ -10,6 +10,7 @@ import { Request } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { JwtUser } from "../auth/types/jwt-user.type";
 import { Roles } from "../common/decorators/roles.decorator";
+import { RolesGuard } from "../common/guards/roles.guard";
 import { UsersService } from "./users.service";
 
 type AuthenticatedRequest = Request & {
@@ -20,7 +21,7 @@ type AuthenticatedRequest = Request & {
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
   @Get("me")
   async me(@Req() req: AuthenticatedRequest): Promise<{
@@ -40,7 +41,7 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()
   async listUsers(): Promise<
