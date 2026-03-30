@@ -1,20 +1,28 @@
 import { useMutation } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthToken } from "../hooks/useAuthToken";
 import { authService } from "../services/auth.service";
 
 export function LoginPage(): JSX.Element {
   const navigate = useNavigate();
-  const { saveToken } = useAuthToken();
+  const location = useLocation();
+  const { saveToken, isAuthenticated } = useAuthToken();
   const [email, setEmail] = useState("admin@lab.local");
   const [password, setPassword] = useState("123456");
+  const redirectPath = (location.state as { from?: string } | null)?.from ?? "/notices";
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuthenticated, navigate, redirectPath]);
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
       saveToken(data.accessToken);
-      navigate("/notices");
+      navigate(redirectPath, { replace: true });
     },
   });
 

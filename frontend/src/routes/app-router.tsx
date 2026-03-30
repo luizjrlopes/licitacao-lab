@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "../components/AppShell";
+import { AuthenticatedRoute } from "../components/AuthenticatedRoute";
 import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { NoticesPage } from "../pages/NoticesPage";
@@ -21,11 +22,19 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: "notices",
-        element: <NoticesPage />,
+        element: (
+          <AuthenticatedRoute>
+            <NoticesPage />
+          </AuthenticatedRoute>
+        ),
       },
       {
         path: "lots/:id",
-        element: <LotDetailPage />,
+        element: (
+          <AuthenticatedRoute>
+            <LotDetailPage />
+          </AuthenticatedRoute>
+        ),
       },
       {
         path: "*",
