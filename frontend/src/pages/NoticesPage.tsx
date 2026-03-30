@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { noticesService } from "../services/notices.service";
 
@@ -20,6 +21,37 @@ export function NoticesPage(): JSX.Element {
     queryFn: noticesService.listWithLots,
   });
 
+  const noticesErrorMessage = (() => {
+    if (!noticesQuery.isError || !noticesQuery.error) {
+      return "";
+    }
+
+    if (axios.isAxiosError(noticesQuery.error)) {
+      const status = noticesQuery.error.response?.status;
+      const message = noticesQuery.error.response?.data?.message;
+
+      if (status === 401) {
+        return "Sessão expirada ou inválida. Faça login novamente.";
+      }
+
+      if (status === 403) {
+        return "Seu perfil não possui acesso a este recurso.";
+      }
+
+      if (typeof message === "string" && message.length > 0) {
+        return `Falha ao carregar editais (${status ?? "sem status"}): ${message}`;
+      }
+
+      return `Falha ao carregar editais (${status ?? "sem status"}).`;
+    }
+
+    if (noticesQuery.error instanceof Error) {
+      return noticesQuery.error.message;
+    }
+
+    return "Não foi possível carregar editais e lotes.";
+  })();
+
   return (
     <div className="page stack-lg">
       <section className="card page-header-card">
@@ -38,7 +70,7 @@ export function NoticesPage(): JSX.Element {
 
       {noticesQuery.isError ? (
         <section className="state-box state-error">
-          Não foi possível carregar editais e lotes.
+          {noticesErrorMessage || "Não foi possível carregar editais e lotes."}
         </section>
       ) : null}
 

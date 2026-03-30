@@ -1,5 +1,8 @@
 import axios from "axios";
-import { getStoredToken } from "../contexts/auth-session.context";
+import {
+  clearStoredToken,
+  getStoredToken,
+} from "../contexts/auth-session.context";
 
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
@@ -16,3 +19,21 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearStoredToken();
+
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.assign("/login");
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);

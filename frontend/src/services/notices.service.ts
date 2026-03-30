@@ -9,16 +9,27 @@ export const noticesService = {
   },
 
   async listWithLots(): Promise<NoticeWithLots[]> {
-    const notices = await this.list();
+    const notices = await noticesService.list();
+
+    if (!Array.isArray(notices)) {
+      throw new Error("Resposta inesperada ao carregar editais.");
+    }
 
     const noticesWithLots = await Promise.all(
       notices.map(async (notice) => {
-        const lots = await lotsService.listByNotice(notice.id);
+        try {
+          const lots = await lotsService.listByNotice(notice.id);
 
-        return {
-          ...notice,
-          lots,
-        };
+          return {
+            ...notice,
+            lots,
+          };
+        } catch {
+          return {
+            ...notice,
+            lots: [],
+          };
+        }
       }),
     );
 
