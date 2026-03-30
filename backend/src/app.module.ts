@@ -1,0 +1,32 @@
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { HealthModule } from "./health/health.module";
+import { PrismaModule } from "./prisma/prisma.module";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
+import { APP_GUARD } from "@nestjs/core";
+import { RolesGuard } from "./common/guards/roles.guard";
+import { NoticesModule } from "./notices/notices.module";
+import { LotsModule } from "./lots/lots.module";
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [".env.local", ".env"],
+    }),
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    NoticesModule,
+    LotsModule,
+    HealthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
+})
+export class AppModule {}
