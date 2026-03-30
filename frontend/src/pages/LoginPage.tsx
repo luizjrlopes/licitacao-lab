@@ -10,7 +10,8 @@ export function LoginPage(): JSX.Element {
   const { saveToken, isAuthenticated } = useAuthToken();
   const [email, setEmail] = useState("admin@lab.local");
   const [password, setPassword] = useState("123456");
-  const redirectPath = (location.state as { from?: string } | null)?.from ?? "/notices";
+  const redirectPath =
+    (location.state as { from?: string } | null)?.from ?? "/notices";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -61,7 +62,9 @@ export function LoginPage(): JSX.Element {
       </form>
 
       {loginMutation.isError ? (
-        <p className="danger">Falha no login. Verifique credenciais e backend.</p>
+        <p className="danger">
+          Falha no login. Verifique credenciais e backend.
+        </p>
       ) : null}
     </section>
   );

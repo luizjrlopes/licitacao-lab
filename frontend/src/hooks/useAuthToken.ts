@@ -10,7 +10,9 @@ export function useAuthToken(): {
   const context = useContext(AuthSessionContext);
 
   if (!context) {
-    throw new Error("useAuthToken deve ser usado dentro de AuthSessionProvider");
+    throw new Error(
+      "useAuthToken deve ser usado dentro de AuthSessionProvider",
+    );
   }
 
   return context;

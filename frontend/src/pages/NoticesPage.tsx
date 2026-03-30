@@ -13,7 +13,8 @@ export function NoticesPage(): JSX.Element {
       <section className="card stack">
         <h1>Editais e lotes</h1>
         <p className="muted">
-          Esta listagem é somente de leitura. As regras críticas continuam validadas no backend.
+          Esta listagem é somente de leitura. As regras críticas continuam
+          validadas no backend.
         </p>
       </section>
 

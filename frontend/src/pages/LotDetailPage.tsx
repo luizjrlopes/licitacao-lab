@@ -1,16 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { bidsService } from "../services/bids.service";
 import { lotsService } from "../services/lots.service";
 import { usersService } from "../services/users.service";
+
+type BidFormValues = {
+  amount: number;
+};
 
 export function LotDetailPage(): JSX.Element {
   const queryClient = useQueryClient();
   const { id } = useParams();
   const lotId = id ?? "";
   const isValidLotId = Boolean(lotId);
-  const [amountInput, setAmountInput] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<BidFormValues>({
+    defaultValues: {
+      amount: undefined,
+    },
+  });
 
   const lotQuery = useQuery({
     queryKey: ["lot", lotId],
@@ -33,7 +48,7 @@ export function LotDetailPage(): JSX.Element {
   const createBidMutation = useMutation({
     mutationFn: async (amount: number) => bidsService.create(lotId, { amount }),
     onSuccess: async () => {
-      setAmountInput("");
+      reset();
       await queryClient.invalidateQueries({ queryKey: ["lot-ranking", lotId] });
     },
   });
@@ -48,16 +63,8 @@ export function LotDetailPage(): JSX.Element {
     );
   }, [lotQuery.data, meQuery.data]);
 
-  const handleSubmitBid = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const parsedAmount = Number(amountInput.replace(",", "."));
-
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      return;
-    }
-
-    createBidMutation.mutate(parsedAmount);
+  const onSubmitBid = (data: BidFormValues) => {
+    createBidMutation.mutate(data.amount);
   };
 
   if (!isValidLotId) {
@@ -123,19 +130,26 @@ export function LotDetailPage(): JSX.Element {
           </p>
         ) : null}
 
-        <form className="stack" onSubmit={handleSubmitBid}>
+        <form className="stack" onSubmit={handleSubmit(onSubmitBid)}>
           <label>
             Valor da proposta
             <input
               type="number"
               min="0.01"
               step="0.01"
-              value={amountInput}
-              onChange={(event) => setAmountInput(event.target.value)}
               placeholder="Ex.: 9500.00"
-              required
+              {...register("amount", {
+                required: "Informe o valor da proposta",
+                valueAsNumber: true,
+                min: {
+                  value: 0.01,
+                  message: "O valor deve ser maior que zero",
+                },
+              })}
             />
           </label>
+
+          {errors.amount ? <p className="danger">{errors.amount.message}</p> : null}
 
           <button
             type="submit"

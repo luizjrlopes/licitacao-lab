@@ -19,7 +19,11 @@ export const AuthSessionContext = createContext<AuthSessionContextValue | null>(
   null,
 );
 
-export function AuthSessionProvider({ children }: { children: ReactNode }): JSX.Element {
+export function AuthSessionProvider({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element {
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem(TOKEN_STORAGE_KEY);
   });
@@ -45,7 +49,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }): JSX.
   );
 
   return (
-    <AuthSessionContext.Provider value={value}>{children}</AuthSessionContext.Provider>
+    <AuthSessionContext.Provider value={value}>
+      {children}
+    </AuthSessionContext.Provider>
   );
 }
 
