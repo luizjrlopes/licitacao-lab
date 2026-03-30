@@ -76,7 +76,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const details = Array.isArray(rawMessage) ? rawMessage : undefined;
     const message = Array.isArray(rawMessage)
       ? "Dados de entrada inválidos"
-      : rawMessage ?? "Erro inesperado";
+      : (rawMessage ?? "Erro inesperado");
 
     return {
       message,
