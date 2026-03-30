@@ -33,39 +33,57 @@ export function LoginPage(): JSX.Element {
   };
 
   return (
-    <section className="card stack">
-      <h1>Login</h1>
-      <form className="stack" onSubmit={handleSubmit}>
-        <label>
-          E-mail
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </label>
+    <div className="page login-page">
+      <section className="card login-card stack">
+        <div>
+          <h1>Entrar no sistema</h1>
+          <p className="muted">
+            Use as credenciais seed para acessar o painel.
+          </p>
+        </div>
 
-        <label>
-          Senha
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </label>
+        <form className="stack" onSubmit={handleSubmit}>
+          <label className="field">
+            <span>E-mail</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
 
-        <button type="submit" disabled={loginMutation.isPending}>
-          {loginMutation.isPending ? "Entrando..." : "Entrar"}
-        </button>
-      </form>
+          <label className="field">
+            <span>Senha</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </label>
 
-      {loginMutation.isError ? (
-        <p className="danger">
-          Falha no login. Verifique credenciais e backend.
-        </p>
-      ) : null}
-    </section>
+          <button
+            type="submit"
+            className="button"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+
+        <div className="panel panel-soft">
+          <p className="muted">Acesso rápido para teste:</p>
+          <p className="muted">ADMIN: admin@lab.local / 123456</p>
+          <p className="muted">SUPPLIER: fornecedor1@lab.local / 123456</p>
+        </div>
+
+        {loginMutation.isError ? (
+          <p className="state-box state-error">
+            Falha no login. Verifique credenciais e backend.
+          </p>
+        ) : null}
+      </section>
+    </div>
   );
 }
