@@ -5,12 +5,16 @@ import {
 } from "@nestjs/common";
 import { NoticeStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { AuditService } from "../audit/audit.service";
 import { CreateNoticeDto } from "./dto/create-notice.dto";
 import { ListNoticesQueryDto } from "./dto/list-notices-query.dto";
 
 @Injectable()
 export class NoticesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   private readonly noticeSelect = {
     id: true,
@@ -23,7 +27,7 @@ export class NoticesService {
     updatedAt: true,
   };
 
-  create(createNoticeDto: CreateNoticeDto): Promise<{
+  async create(actorUserId: string, createNoticeDto: CreateNoticeDto): Promise<{
     id: string;
     title: string;
     description: string;
@@ -33,7 +37,7 @@ export class NoticesService {
     createdAt: Date;
     updatedAt: Date;
   }> {
-    return this.prismaService.notice.create({
+    const notice = await this.prismaService.notice.create({
       data: {
         title: createNoticeDto.title,
         description: createNoticeDto.description,
@@ -41,6 +45,19 @@ export class NoticesService {
       },
       select: this.noticeSelect,
     });
+
+    await this.auditService.logAction({
+      actorUserId,
+      action: "NOTICE_CREATE",
+      entityType: "NOTICE",
+      entityId: notice.id,
+      metadataJson: {
+        title: notice.title,
+        status: notice.status,
+      },
+    });
+
+    return notice;
   }
 
   list(query: ListNoticesQueryDto): Promise<
@@ -84,7 +101,7 @@ export class NoticesService {
     return notice;
   }
 
-  async publish(id: string): Promise<{
+  async publish(actorUserId: string, id: string): Promise<{
     id: string;
     title: string;
     description: string;
@@ -112,7 +129,7 @@ export class NoticesService {
       );
     }
 
-    return this.prismaService.notice.update({
+    const updated = await this.prismaService.notice.update({
       where: { id },
       data: {
         status: NoticeStatus.OPEN,
@@ -121,9 +138,21 @@ export class NoticesService {
       },
       select: this.noticeSelect,
     });
+
+    await this.auditService.logAction({
+      actorUserId,
+      action: "NOTICE_PUBLISH",
+      entityType: "NOTICE",
+      entityId: updated.id,
+      metadataJson: {
+        status: updated.status,
+      },
+    });
+
+    return updated;
   }
 
-  async close(id: string): Promise<{
+  async close(actorUserId: string, id: string): Promise<{
     id: string;
     title: string;
     description: string;
@@ -151,7 +180,7 @@ export class NoticesService {
       );
     }
 
-    return this.prismaService.notice.update({
+    const updated = await this.prismaService.notice.update({
       where: { id },
       data: {
         status: NoticeStatus.CLOSED,
@@ -159,5 +188,17 @@ export class NoticesService {
       },
       select: this.noticeSelect,
     });
+
+    await this.auditService.logAction({
+      actorUserId,
+      action: "NOTICE_CLOSE",
+      entityType: "NOTICE",
+      entityId: updated.id,
+      metadataJson: {
+        status: updated.status,
+      },
+    });
+
+    return updated;
   }
 }

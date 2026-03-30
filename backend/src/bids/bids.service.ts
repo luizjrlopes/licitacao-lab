@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { NoticeStatus, Prisma, UserRole } from "@prisma/client";
 import { JwtUser } from "../auth/types/jwt-user.type";
+import { AuditService } from "../audit/audit.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisService } from "../redis/redis.service";
 import { CreateBidDto } from "./dto/create-bid.dto";
@@ -14,6 +15,7 @@ export class BidsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly redisService: RedisService,
+    private readonly auditService: AuditService,
   ) {}
 
   async create(
@@ -65,7 +67,7 @@ export class BidsService {
             SELECT pg_advisory_xact_lock(hashtext(${lockKey})::bigint)
           `;
 
-          await tx.bid.updateMany({
+          const updated = await tx.bid.updateMany({
             where: {
               lotId,
               supplierId: actor.sub,
@@ -76,7 +78,7 @@ export class BidsService {
             },
           });
 
-          return tx.bid.create({
+          const bid = await tx.bid.create({
             data: {
               lotId,
               supplierId: actor.sub,
@@ -93,6 +95,24 @@ export class BidsService {
               updatedAt: true,
             },
           });
+
+          await this.auditService.logAction(
+            {
+              actorUserId: actor.sub,
+              action: updated.count > 0 ? "BID_REPLACE" : "BID_CREATE",
+              entityType: "BID",
+              entityId: bid.id,
+              metadataJson: {
+                lotId,
+                supplierId: actor.sub,
+                amount: Number(bid.amount),
+                replacedPrevious: updated.count > 0,
+              },
+            },
+            tx,
+          );
+
+          return bid;
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,

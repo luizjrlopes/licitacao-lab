@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { NoticeStatus, Prisma } from "@prisma/client";
+import { AuditService } from "../audit/audit.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisService } from "../redis/redis.service";
 import { CreateLotDto } from "./dto/create-lot.dto";
@@ -13,6 +14,7 @@ export class LotsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly redisService: RedisService,
+    private readonly auditService: AuditService,
   ) {}
 
   private readonly lotSelect = {
@@ -33,6 +35,7 @@ export class LotsService {
   };
 
   async create(
+    actorUserId: string,
     noticeId: string,
     createLotDto: CreateLotDto,
   ): Promise<{
@@ -68,7 +71,7 @@ export class LotsService {
     }
 
     try {
-      return await this.prismaService.lot.create({
+      const lot = await this.prismaService.lot.create({
         data: {
           noticeId,
           code: createLotDto.code,
@@ -77,6 +80,20 @@ export class LotsService {
         },
         select: this.lotSelect,
       });
+
+      await this.auditService.logAction({
+        actorUserId,
+        action: "LOT_CREATE",
+        entityType: "LOT",
+        entityId: lot.id,
+        metadataJson: {
+          noticeId: lot.noticeId,
+          code: lot.code,
+          referenceValue: Number(lot.referenceValue),
+        },
+      });
+
+      return lot;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

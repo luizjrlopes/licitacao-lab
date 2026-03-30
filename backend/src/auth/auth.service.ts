@@ -4,12 +4,14 @@ import { compareSync } from "bcryptjs";
 import { LoginDto } from "./dto/login.dto";
 import { UsersService } from "../users/users.service";
 import { UserRole } from "@prisma/client";
+import { AuditService } from "../audit/audit.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly auditService: AuditService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<{
@@ -41,6 +43,16 @@ export class AuthService {
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
+
+    await this.auditService.logAction({
+      actorUserId: user.id,
+      action: "LOGIN",
+      entityType: "USER",
+      entityId: user.id,
+      metadataJson: {
+        email: user.email,
+      },
+    });
 
     return {
       accessToken,

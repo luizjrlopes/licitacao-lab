@@ -7,14 +7,21 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { NoticeStatus, UserRole } from "@prisma/client";
+import { Request } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtUser } from "../auth/types/jwt-user.type";
 import { Roles } from "../common/decorators/roles.decorator";
 import { CreateNoticeDto } from "./dto/create-notice.dto";
 import { ListNoticesQueryDto } from "./dto/list-notices-query.dto";
 import { NoticesService } from "./notices.service";
+
+type AuthenticatedRequest = Request & {
+  user: JwtUser;
+};
 
 @Controller("notices")
 @UseGuards(JwtAuthGuard)
@@ -23,7 +30,10 @@ export class NoticesController {
 
   @Post()
   @Roles(UserRole.ADMIN)
-  create(@Body() createNoticeDto: CreateNoticeDto): Promise<{
+  create(
+    @Body() createNoticeDto: CreateNoticeDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
@@ -33,7 +43,7 @@ export class NoticesController {
     createdAt: Date;
     updatedAt: Date;
   }> {
-    return this.noticesService.create(createNoticeDto);
+    return this.noticesService.create(req.user.sub, createNoticeDto);
   }
 
   @Get()
@@ -70,7 +80,10 @@ export class NoticesController {
 
   @Patch(":id/publish")
   @Roles(UserRole.ADMIN)
-  publish(@Param("id", new ParseUUIDPipe()) id: string): Promise<{
+  publish(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
@@ -80,12 +93,15 @@ export class NoticesController {
     createdAt: Date;
     updatedAt: Date;
   }> {
-    return this.noticesService.publish(id);
+    return this.noticesService.publish(req.user.sub, id);
   }
 
   @Patch(":id/close")
   @Roles(UserRole.ADMIN)
-  close(@Param("id", new ParseUUIDPipe()) id: string): Promise<{
+  close(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{
     id: string;
     title: string;
     description: string;
@@ -95,6 +111,6 @@ export class NoticesController {
     createdAt: Date;
     updatedAt: Date;
   }> {
-    return this.noticesService.close(id);
+    return this.noticesService.close(req.user.sub, id);
   }
 }

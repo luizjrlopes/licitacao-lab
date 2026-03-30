@@ -31,7 +31,9 @@ export class RedisService implements OnModuleInit {
       this.isReady = true;
       this.logger.log(`Redis conectado em ${host}:${port}`);
     } catch (error) {
-      this.logger.warn("Redis não conectado no bootstrap. Cache ficará desabilitado.");
+      this.logger.warn(
+        "Redis não conectado no bootstrap. Cache ficará desabilitado.",
+      );
       this.isReady = false;
     }
   }
@@ -53,7 +55,11 @@ export class RedisService implements OnModuleInit {
     }
   }
 
-  async setJson(key: string, value: unknown, ttlSeconds: number): Promise<void> {
+  async setJson(
+    key: string,
+    value: unknown,
+    ttlSeconds: number,
+  ): Promise<void> {
     if (!this.client || !this.isReady) {
       return;
     }

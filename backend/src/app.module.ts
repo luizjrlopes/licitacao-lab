@@ -10,6 +10,7 @@ import { NoticesModule } from "./notices/notices.module";
 import { LotsModule } from "./lots/lots.module";
 import { BidsModule } from "./bids/bids.module";
 import { RedisModule } from "./redis/redis.module";
+import { AuditModule } from "./audit/audit.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RedisModule } from "./redis/redis.module";
       envFilePath: [".env.local", ".env"],
     }),
     PrismaModule,
+    AuditModule,
     AuthModule,
     RedisModule,
     UsersModule,
