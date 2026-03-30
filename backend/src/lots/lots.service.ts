@@ -134,6 +134,38 @@ export class LotsService {
     return lot;
   }
 
+  async listByNotice(noticeId: string): Promise<
+    Array<{
+      id: string;
+      noticeId: string;
+      code: string;
+      description: string;
+      referenceValue: Prisma.Decimal;
+      createdAt: Date;
+      updatedAt: Date;
+      notice: {
+        id: string;
+        title: string;
+        status: NoticeStatus;
+      };
+    }>
+  > {
+    const notice = await this.prismaService.notice.findUnique({
+      where: { id: noticeId },
+      select: { id: true },
+    });
+
+    if (!notice) {
+      throw new NotFoundException("Edital não encontrado");
+    }
+
+    return this.prismaService.lot.findMany({
+      where: { noticeId },
+      orderBy: { createdAt: "asc" },
+      select: this.lotSelect,
+    });
+  }
+
   async getRanking(id: string): Promise<{
     lotId: string;
     ranking: Array<{

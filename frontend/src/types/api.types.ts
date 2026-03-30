@@ -7,24 +7,37 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export type NoticeStatus = "DRAFT" | "OPEN" | "CLOSED";
+
 export interface Notice {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  status: "DRAFT" | "OPEN" | "CLOSED";
+  status: NoticeStatus;
 }
 
 export interface Lot {
-  id: number;
-  noticeId: number;
+  id: string;
+  noticeId: string;
   code: string;
   description: string;
   referenceValue: string;
 }
 
 export interface RankingBid {
-  id: number;
-  supplierId: number;
-  amount: string;
-  createdAt: string;
+  position: number;
+  bidId: string;
+  supplierId: string;
+  supplierName: string;
+  amount: number;
+  submittedAt: string;
+}
+
+export interface LotRankingResponse {
+  lotId: string;
+  ranking: RankingBid[];
+}
+
+export interface NoticeWithLots extends Notice {
+  lots: Lot[];
 }

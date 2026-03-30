@@ -4,8 +4,8 @@ import { lotsService } from "../services/lots.service";
 
 export function LotDetailPage(): JSX.Element {
   const { id } = useParams();
-  const lotId = Number(id);
-  const isValidLotId = Number.isInteger(lotId) && lotId > 0;
+  const lotId = id ?? "";
+  const isValidLotId = Boolean(lotId);
 
   const lotQuery = useQuery({
     queryKey: ["lot", lotId],
@@ -60,7 +60,7 @@ export function LotDetailPage(): JSX.Element {
           <p className="danger">Não foi possível carregar o ranking.</p>
         ) : null}
 
-        {rankingQuery.data?.length ? (
+        {rankingQuery.data?.ranking.length ? (
           <table className="table">
             <thead>
               <tr>
@@ -71,19 +71,19 @@ export function LotDetailPage(): JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {rankingQuery.data.map((bid, index) => (
-                <tr key={bid.id}>
-                  <td>{index + 1}</td>
-                  <td>{bid.supplierId}</td>
+              {rankingQuery.data.ranking.map((bid) => (
+                <tr key={bid.bidId}>
+                  <td>{bid.position}</td>
+                  <td>{bid.supplierName}</td>
                   <td>{bid.amount}</td>
-                  <td>{new Date(bid.createdAt).toLocaleString("pt-BR")}</td>
+                  <td>{new Date(bid.submittedAt).toLocaleString("pt-BR")}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : null}
 
-        {!rankingQuery.isLoading && !rankingQuery.data?.length ? (
+        {!rankingQuery.isLoading && !rankingQuery.data?.ranking.length ? (
           <p className="muted">Sem propostas para este lote.</p>
         ) : null}
       </section>

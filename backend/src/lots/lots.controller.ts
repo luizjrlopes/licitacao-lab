@@ -48,6 +48,29 @@ export class LotsController {
     return this.lotsService.create(req.user.sub, noticeId, createLotDto);
   }
 
+  @Get("notices/:noticeId/lots")
+  @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
+  listByNotice(
+    @Param("noticeId", new ParseUUIDPipe()) noticeId: string,
+  ): Promise<
+    Array<{
+      id: string;
+      noticeId: string;
+      code: string;
+      description: string;
+      referenceValue: Prisma.Decimal;
+      createdAt: Date;
+      updatedAt: Date;
+      notice: {
+        id: string;
+        title: string;
+        status: NoticeStatus;
+      };
+    }>
+  > {
+    return this.lotsService.listByNotice(noticeId);
+  }
+
   @Get("lots/:id")
   @Roles(UserRole.ADMIN, UserRole.SUPPLIER)
   detail(@Param("id", new ParseUUIDPipe()) id: string): Promise<{
