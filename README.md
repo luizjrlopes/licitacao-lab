@@ -1,20 +1,22 @@
 # licitacao-lab
 
-Aplicação full stack de estudo para simular um cenário de licitação pública, com foco em:
+[English](README.md) | [Português](README.pt-BR.md)
 
-- autenticação JWT;
-- autorização por perfis (`ADMIN` e `SUPPLIER`);
-- envio de proposta com regra transacional e proteção de concorrência;
-- auditoria de ações críticas;
-- integração backend + frontend em ambiente local com Docker Compose.
+Full stack study application that simulates a public-procurement scenario, with emphasis on:
+
+- JWT authentication;
+- role-based authorization (`ADMIN` and `SUPPLIER`);
+- bid submission with transactional rules and concurrency protection;
+- auditing of critical actions;
+- backend + frontend integration in a local Docker Compose environment.
 
 ## Stack
 
 - Backend: NestJS + TypeScript + Prisma + PostgreSQL + Redis
 - Frontend: React + TypeScript + Vite + React Router + TanStack Query
-- Infra local: Docker + Docker Compose
+- Local infrastructure: Docker + Docker Compose
 
-## Estrutura do projeto
+## Project structure
 
 ```txt
 licitacao-lab/
@@ -26,18 +28,18 @@ licitacao-lab/
 	README.md
 ```
 
-## Pré-requisitos
+## Prerequisites
 
-- Docker Desktop (ou Docker Engine + Compose plugin)
-- Portas livres: `3000`, `5173`, `5432`, `6379`
+- Docker Desktop, or Docker Engine + Compose plugin
+- Available ports: `3000`, `5173`, `5432`, `6379`
 
-## Configuração de ambiente
+## Environment setup
 
-1. Copie o arquivo de exemplo para uso local:
+1. Copy the example environment file:
    - `cp .env.example .env` (Linux/macOS)
    - `Copy-Item .env.example .env` (PowerShell)
 
-2. Valores esperados no `.env`:
+2. Expected `.env` values:
    - `PORT=3000`
    - `DATABASE_URL=postgresql://postgres:postgres@postgres:5432/licitacao_lab?schema=public`
    - `JWT_SECRET=supersecret`
@@ -46,75 +48,72 @@ licitacao-lab/
    - `VITE_API_URL=http://localhost:3000`
    - `FRONTEND_ORIGIN=http://localhost:5173`
 
-## Subir tudo com Docker Compose
+## Start the full environment with Docker Compose
 
-No diretório raiz:
+From the repository root:
 
-- `docker compose up --build -d`
+```bash
+docker compose up --build -d
+```
 
-O serviço `backend` executa automaticamente:
+The `backend` service automatically performs:
 
-1. geração do Prisma Client;
-2. aplicação de migrations (`prisma migrate deploy`);
-3. seed inicial (`prisma db seed`);
-4. inicialização da API (`npm run start:dev`).
+1. Prisma Client generation;
+2. migration deployment (`prisma migrate deploy`);
+3. initial seed (`prisma db seed`);
+4. API startup (`npm run start:dev`).
 
-## Comandos úteis
+## Useful commands
 
-- Ver status dos serviços:
-  - `docker compose ps`
-- Ver logs do backend:
-  - `docker compose logs backend --tail 200`
-- Ver logs do frontend:
-  - `docker compose logs frontend --tail 200`
-- Reconstruir ambiente do zero (inclui limpeza de volume de banco/cache):
-  - `docker compose down -v`
-  - `docker compose up --build -d`
+```bash
+docker compose ps
+docker compose logs backend --tail 200
+docker compose logs frontend --tail 200
+docker compose down -v
+docker compose up --build -d
+```
 
-## Acessos
+## Local endpoints
 
 - Frontend: `http://localhost:5173`
-- API backend: `http://localhost:3000`
+- Backend API: `http://localhost:3000`
 - Healthcheck: `http://localhost:3000/health`
 
-## Credenciais de teste (seed)
+## Seeded test credentials
 
-- **ADMIN**
-  - email: `admin@lab.local`
-  - senha: `123456`
+**ADMIN**
+- email: `admin@lab.local`
+- password: `123456`
 
-- **SUPPLIER 1**
-  - email: `fornecedor1@lab.local`
-  - senha: `123456`
+**SUPPLIER 1**
+- email: `fornecedor1@lab.local`
+- password: `123456`
 
-- **SUPPLIER 2**
-  - email: `fornecedor2@lab.local`
-  - senha: `123456`
+**SUPPLIER 2**
+- email: `fornecedor2@lab.local`
+- password: `123456`
 
-## Fluxo manual de validação ponta a ponta
+## Manual end-to-end validation flow
 
-1. Abra o frontend em `http://localhost:5173`.
-2. Faça login com um fornecedor (`fornecedor1@lab.local` / `123456`).
-3. Acesse a listagem de editais e lotes.
-4. Entre no detalhe de um lote.
-5. Envie uma proposta com valor > 0.
-6. Confira atualização do ranking do lote.
-7. Faça logout e login com ADMIN (`admin@lab.local` / `123456`).
-8. Acesse a tela de auditoria e valide os eventos (login, envio/substituição de proposta, etc.).
+1. Open the frontend at `http://localhost:5173`.
+2. Sign in as a supplier (`fornecedor1@lab.local` / `123456`).
+3. Open the notices and lots listing.
+4. Open a lot detail page.
+5. Submit a bid with a value greater than 0.
+6. Confirm that the lot ranking updates.
+7. Sign out and sign in as ADMIN (`admin@lab.local` / `123456`).
+8. Open the audit screen and verify the recorded events, including login and bid submission/replacement.
 
-## Endpoints principais
+## Main endpoints
 
 ### Auth
-
 - `POST /auth/login`
 
 ### Users
-
 - `GET /users/me`
 - `GET /users` (ADMIN)
 
 ### Notices
-
 - `POST /notices` (ADMIN)
 - `GET /notices`
 - `GET /notices/:id`
@@ -122,45 +121,46 @@ O serviço `backend` executa automaticamente:
 - `PATCH /notices/:id/close` (ADMIN)
 
 ### Lots
-
 - `POST /notices/:noticeId/lots` (ADMIN)
 - `GET /notices/:noticeId/lots`
 - `GET /lots/:id`
 - `GET /lots/:id/ranking`
 
 ### Bids
-
 - `POST /lots/:lotId/bids` (SUPPLIER)
 - `GET /me/bids` (SUPPLIER)
 
 ### Audit
-
 - `GET /audit-logs` (ADMIN)
 
 ### Health
-
 - `GET /health`
 
-## Testes e build fora dos containers
+## Tests and builds outside containers
 
-No `backend/`:
+From `backend/`:
 
-- `npm test`
-- `npm run build`
+```bash
+npm test
+npm run build
+```
 
-No `frontend/`:
+From `frontend/`:
 
-- `npm run build`
+```bash
+npm run build
+```
 
-## Observações técnicas importantes
+## Important engineering details
 
-- A regra de envio de proposta usa transação com isolamento `Serializable` e lock por chave (`pg_advisory_xact_lock`) para reduzir risco de inconsistência em concorrência.
-- Quando um fornecedor envia nova proposta para o mesmo lote, a proposta anterior ativa é desativada (`isActive = false`) e a nova entra como ativa (`isActive = true`).
-- O ranking de lote é invalidado no Redis após envio/substituição de proposta.
+- Bid submission uses a `Serializable` transaction and a keyed lock (`pg_advisory_xact_lock`) to reduce concurrency inconsistencies.
+- When a supplier submits a new bid for the same lot, the previously active bid is deactivated (`isActive = false`) and the new one becomes active (`isActive = true`).
+- The lot ranking cache is invalidated in Redis after a bid is submitted or replaced.
 
-## Encerramento do ambiente
+## Shutting down the environment
 
-- Parar sem remover volumes:
-  - `docker compose down`
-- Parar removendo volumes:
-  - `docker compose down -v`
+```bash
+docker compose down
+# or, removing volumes:
+docker compose down -v
+```
